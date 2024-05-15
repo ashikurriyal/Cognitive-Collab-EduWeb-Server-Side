@@ -37,6 +37,13 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/assignments/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await assignmentCollection.findOne(query)
+            res.send(result)
+        })
+
         app.post('/assignments', async (req, res) => {
             const assignment = req.body;
             const result = await assignmentCollection.insertOne(assignment)
