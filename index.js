@@ -44,6 +44,17 @@ async function run() {
             console.log(result);
         })
 
+        //delete
+        app.delete('/assignments/:id', async (req, res) => {
+            const id = req.params.id
+            // console.log(id);
+            const query = { _id: new ObjectId(id) }
+            // console.log(query)
+            const result = await assignmentCollection.deleteOne(query);
+            // console.log(result)
+            res.send(result);
+          })
+
 
 
     } finally {
