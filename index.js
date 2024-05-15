@@ -51,6 +51,13 @@ async function run() {
             console.log(result);
         })
 
+        app.get('/assignments/:difficultyLevel', async(req,res) => {
+            const difficultyLevel = req.params.difficultyLevel
+            const query = {difficultyLevel: difficultyLevel}
+            const result = await assignmentCollection.find(query).toArray()
+            res.send(result)
+        })
+
         //update
         app.put('/assignments/:id', async (req, res) => {
             const id = req.params.id
