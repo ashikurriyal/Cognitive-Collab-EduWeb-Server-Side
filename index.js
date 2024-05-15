@@ -44,6 +44,27 @@ async function run() {
             console.log(result);
         })
 
+        //update
+        app.put('/assignments/:id', async (req, res) => {
+            const id = req.params.id
+            console.log(id)
+            const filter = { _id: new ObjectId(id) }
+            const updatedItem = req.body;
+            const item = {
+                $set: {
+                    assignmentTitle: updatedItem.assignmentTitle,
+                    marks: updatedItem.marks,
+                    difficultyLevel: updatedItem.difficultyLevel,
+                    assignmentDescription: updatedItem.assignmentDescription,
+                    dueDate: updatedItem.dueDate,
+                    image: updatedItem.image,
+                    
+                }
+            }
+            const result = await placeCollection.updateOne(filter, item)
+            res.send(result);
+        })
+
         //delete
         app.delete('/assignments/:id', async (req, res) => {
             const id = req.params.id
