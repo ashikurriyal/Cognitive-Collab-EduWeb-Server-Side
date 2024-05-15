@@ -1,12 +1,18 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser')
 const app = express()
 require('dotenv').config()
 const port = process.env.PORT || 5300;
 
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: ['cognitivecollab-4dafd.web.app', 'cognitivecollab-4dafd.firebaseapp.com'],
+    credentials: true
+  }))
+app.use(cookieParser())
 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -20,6 +26,28 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+
+// Custom middlewares
+const logger = async (req, res, next) => {
+    console.log('Logging info: ', req.method, req.url)
+    next();
+}
+
+const verifyToken = async (req, res, next) => {
+    const token = req.cookies?.token;
+
+    if (!token) {
+        return res.status(401).send({ message: 'Unauthorized' });
+    }
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRETE, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: 'Unauthorized' });
+        }
+        req.user = decoded;
+        next();
+    })
+}
 
 async function run() {
     try {
@@ -51,9 +79,9 @@ async function run() {
             console.log(result);
         })
 
-        app.get('/assignments/:difficultyLevel', async(req,res) => {
+        app.get('/assignments/:difficultyLevel', async (req, res) => {
             const difficultyLevel = req.params.difficultyLevel
-            const query = {difficultyLevel: difficultyLevel}
+            const query = { difficultyLevel: difficultyLevel }
             const result = await assignmentCollection.find(query).toArray()
             res.send(result)
         })
@@ -72,7 +100,7 @@ async function run() {
                     assignmentDescription: updatedItem.assignmentDescription,
                     dueDate: updatedItem.dueDate,
                     image: updatedItem.image,
-                    
+
                 }
             }
             const result = await placeCollection.updateOne(filter, item)
@@ -88,7 +116,7 @@ async function run() {
             const result = await assignmentCollection.deleteOne(query);
             // console.log(result)
             res.send(result);
-          })
+        })
 
 
 
